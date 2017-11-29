@@ -1,0 +1,9 @@
+url=$1
+message=$(echo $(time-countdown $(($(date -d"next-thursday 18:00:00" +%s)-$(date +%s)))) from now at Kirk\'s place it is then)
+data=$(echo {\"content\":\"$message \"})
+echo $data
+
+curl -X POST $url \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d "$data"
