@@ -1,0 +1,44 @@
+if [ ! -f .channel ]; then
+	echo "No channel defined in .channel file!"
+	exit 1;
+fi
+
+if [ ! -f .botkey ]; then
+	echo "No bot key defined in .botkey file!"
+	exit 1;
+fi
+
+bot_key=$(cat .botkey)
+channel_id=$(cat .channel)
+
+channel_info=$(curl -s -X GET \
+  https://discordapp.com/api/channels/$channel_id \
+  -H 'authorization: Bot '$bot_key \
+  -H 'cache-control: no-cache')
+last_message=$(echo $channel_info | grep -o '"last_message_id": "[^"]*"' | grep -o '[^"]*"$' | grep -o '[^"]*')
+
+echo Starting from $last_message
+
+while sleep 1; do
+	messages_info=$(curl -s -X GET \
+	  'https://discordapp.com/api/channels/'$channel_id'/messages?after='$last_message \
+	  -H 'authorization: Bot '$bot_key \
+	  -H 'cache-control: no-cache' );
+
+	if [ $(echo "$messages_info" | jq length) == 0 ]; then
+		continue
+	fi
+	
+	messages=$(echo $messages_info | jq -r '[.[] | .content ] | .[]')
+	
+	while read -r message; do
+		echo "Processing message \"$message\""
+
+		if [ "$message" == "!clock" ]; then
+			./send-message
+		fi;
+	done <<< "$messages"
+
+	last_message=$(echo $messages_info | jq -r '.[0].id')
+done;
+

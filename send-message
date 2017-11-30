@@ -1,4 +1,15 @@
-url=$1
+if [ ! -f .channel ]; then
+	echo "No channel defined in .channel file!"
+	exit 1;
+fi
+
+if [ ! -f .webhook ]; then
+	echo "No webhook defined in .webhook file!"
+	exit 1;
+fi
+
+url=$(cat .webhook)
+
 message=$(echo $(time-countdown $(($(date -d"next-thursday 18:00:00" +%s)-$(date +%s)))) from now at Kirk\'s place it is then)
 data=$(echo {\"content\":\"$message \"})
 echo $data
