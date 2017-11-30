@@ -29,6 +29,8 @@ while sleep 1; do
 		continue
 	fi
 	
+	echo Message string:
+	echo $messages_info
 	messages=$(echo $messages_info | jq -r '[.[] | .content ] | .[]')
 	
 	while read -r message; do

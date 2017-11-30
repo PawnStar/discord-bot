@@ -10,10 +10,10 @@ fi
 
 url=$(cat .webhook)
 
-timeDiff=$(( $(date -d"next-thursday 18:00:00" +%s)-$(date +%s)))
+timeDiff=$(( $(date -d"next-thursday 18:30:00" +%s)-$(date +%s)))
 
 # Seven days in seconds
-if [[ $timeDiff -gt 604800 ]]; then 
+if [[ $timeDiff -gt 604800 ]]; then
 	timeDiff="$(( $timeDiff-604800))"
 	echo $timeDiff
 fi
