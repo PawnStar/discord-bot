@@ -25,7 +25,7 @@ while sleep 1; do
 	  -H 'authorization: Bot '$bot_key \
 	  -H 'cache-control: no-cache' );
 
-	if [ $(echo "$messages_info" | jq length) == 0 ]; then
+	if [ "$messages_info" == "" ] || [ $(echo "$messages_info" | jq length) == 0 ]; then
 		continue
 	fi
 	

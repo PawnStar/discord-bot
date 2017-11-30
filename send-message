@@ -10,7 +10,15 @@ fi
 
 url=$(cat .webhook)
 
-message=$(echo $(time-countdown $(($(date -d"next-thursday 18:00:00" +%s)-$(date +%s)))) from now at Kirk\'s place it is then)
+timeDiff=$(( $(date -d"next-thursday 18:00:00" +%s)-$(date +%s)))
+
+# Seven days in seconds
+if [[ $timeDiff -gt 604800 ]]; then 
+	timeDiff="$(( $timeDiff-604800))"
+	echo $timeDiff
+fi
+
+message=$(echo $(time-countdown $timeDiff) from now at Kirk\'s place it is then)
 data=$(echo {\"content\":\"$message \"})
 
 curl -X POST $url \
