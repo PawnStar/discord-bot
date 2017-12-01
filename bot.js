@@ -12,4 +12,13 @@ client.on('message', msg => {
   }
 });
 
+client.on('message', msg => {
+  //Only let me do this
+  if(msg.content === '!die' && config.admins.includes(msg.author.id)){
+    msg.reply('Okay, dying...').then(()=>{
+      process.exit(1);
+    })
+  }
+})
+
 client.login(config.token);
