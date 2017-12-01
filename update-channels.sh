@@ -1,5 +1,20 @@
 bot_key=$1
-output_file=$2
+temp_dir=$2
+output_file=$temp_dir"/channels.txt"
+last_check=$temp_dir"/lastChannelCheck.txt"
+
+#Check if necessary
+prev_time=$(cat $last_check 2> /dev/null)
+curr_time=$(date +%s)
+
+if [ "$prev_time" != "" ]; then
+  timeDiff=$(( $curr_time-$prev_time ))
+  if [[ $timeDiff -lt 60 ]]; then
+    exit 0;
+  fi
+fi
+
+echo $curr_time > $last_check;
 
 echo "" > $output_file;
 

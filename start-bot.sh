@@ -9,11 +9,12 @@ bot_key=$(cat .botkey)
 temp_dir=$(mktemp -d);
 mkdir $temp_dir"/channels/"
 channels_list=$temp_dir"/channels.txt"
-./update-channels.sh $bot_key $channels_list
 
 echo "Starting in directory "$temp_dir
 
 while sleep 1; do
+	./update-channels.sh $bot_key $temp_dir
+
 	while read -r channel; do
 		if [ "$channel" == "" ]; then
 			continue;
