@@ -1,8 +1,3 @@
-if [ ! -f .channel ]; then
-	echo "No channel defined in .channel file!"
-	exit 1;
-fi
-
 if [ ! -f .webhook ]; then
 	echo "No webhook defined in .webhook file!"
 	exit 1;
