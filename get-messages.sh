@@ -27,14 +27,16 @@ fi
 
 echo Message string:
 echo $messages_info
+
+# TODO: Move content extraction into loop to get user out of it
 messages=$(echo $messages_info | jq -r '[.[] | .content ] | .[]')
 
 while read -r message; do
 	echo "[$channel_id] Processing message \"$message\""
 
-	if [ "$message" == "!clock" ]; then
-		./send-message.sh
-	fi;
+  if [[ $message == !* ]]; then
+    ./selectCommand.sh "$message" "$channel_id"
+  fi
 done <<< "$messages"
 
 #Update last message seen
