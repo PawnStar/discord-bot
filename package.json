@@ -1,0 +1,8 @@
+{
+  "name": "aoede",
+  "version": "0.0.1",
+  "dependencies": {},
+  "devDependencies": {
+    "discord.js": "^11.2.1"
+  }
+}
