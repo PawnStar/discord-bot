@@ -3,7 +3,7 @@ const { DateTime } = require('luxon');
 const config = require('../config.json');
 const diffUnits = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
 
-module.exports = (msg, clock)=>{
+module.exports = (msg, client)=>{
   if(msg.content !== '!clock') return;
 
   const thisThursday = DateTime.fromObject({
