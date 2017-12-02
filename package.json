@@ -1,7 +1,9 @@
 {
   "name": "aoede",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "luxon": "^0.2.4"
+  },
   "devDependencies": {
     "discord.js": "^11.2.1"
   }
