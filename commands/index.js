@@ -7,6 +7,7 @@ module.exports = (client)=>{
   commandListener.on('die', require('./die'));
   commandListener.on('clock', require('./clock'));
   commandListener.on('roll', require('./roll'));
+  commandListener.on('game', require('./game'));
 
   client.on('message', msg => {
     if(msg.content[0] !== '!')
