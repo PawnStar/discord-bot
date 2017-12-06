@@ -15,7 +15,7 @@ module.exports = msg=>{
   if(split < 0)
     command = '';
   else
-    command = msg.content.slice(split + 1) + '\n';
+    command = msg.content.slice(split + 1);
 
   if(!gamesInProgress[msg.channel.id])
     startGame(msg.channel);
@@ -27,19 +27,27 @@ function writeGame(channel, command){
   const childProcess = gamesInProgress[channel.id];
   const stream = childProcess.stdin;
 
-  if(command === 'exitGame')
+  if(command === 'exitGame'){
+    channel.send('Closing game');
+    gamesInProgress[channel.id] = null;
     return childProcess.kill('SIGKILL');
+  }
 
-  stream.write(command);
+  stream.write(command + ' \n');
 }
 
 function startGame(channel){
   const gamePath = path.join(__dirname, './ifvms/runGame.js');
 
+  channel.send('Opening game "Galatea" by Emily Short . . .');
+
   childProcess = child_process.fork(gamePath, [], {stdio: 'pipe'});
   childProcess.stdout.on('data', data=>{
-    channel.send(data.toString('ascii'));
+    if(data.toString('ascii').trim !== '')
+      channel.send(data.toString('ascii'));
   })
 
   gamesInProgress[channel.id] = childProcess;
+
+  childProcess.stdin.write(' \n');
 }
