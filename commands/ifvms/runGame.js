@@ -3,6 +3,7 @@ var vm = new ifvms.ZVM();
 var GlkOte = require('glkote-term');
 var Glk = GlkOte.Glk;
 var fs = require('fs');
+var path = require('path');
 
 var options = {
 	vm: vm,
@@ -11,7 +12,7 @@ var options = {
   GlkOte: new GlkOte.DumbGlkOte()
 }
 
-var galatea = fs.readFileSync('./Galatea.zblorb');
+var galatea = fs.readFileSync(path.join(__dirname, './Galatea.zblorb'));
 
 vm.prepare( galatea, options);
 
