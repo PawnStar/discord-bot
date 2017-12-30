@@ -24,10 +24,10 @@ client.on('ready', () => {
   });
 
   const checkChannel = ()=>{
-    //const waitTime = getRandomMinutes(15,500);
-    const waitTime = 10000;
+    const waitTime = getRandomMinutes(30,700);
+    //const waitTime = 10000;
 
-    console.log("Waiting " + waitTime/1000 + " seconds");
+    console.log("Waiting " + waitTime/60/1000 + " minutes");
 
     setTimeout(()=>{
       const people = target.recipients;// .filter(person=>person.presence.status === 'online');
