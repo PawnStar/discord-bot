@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require('./config.json');
-const commandListener = require('./commands');
+const commandListener = require('./loadCommands');
 
 //Attach command listeners
 commandListener(client);

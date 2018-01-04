@@ -24,16 +24,20 @@ module.exports = msg=>{
 }
 
 function writeGame(channel, command){
-  const childProcess = gamesInProgress[channel.id];
-  const stream = childProcess.stdin;
+  try{
+    const childProcess = gamesInProgress[channel.id];
+    const stream = childProcess.stdin;
 
-  if(command === 'exitGame'){
-    channel.send('Closing game');
-    gamesInProgress[channel.id] = null;
-    return childProcess.kill('SIGKILL');
+    if(command === 'exitGame'){
+      channel.send('Closing game');
+      gamesInProgress[channel.id] = null;
+      return childProcess.kill('SIGKILL');
+    }
+
+    stream.write(command + ' \n');
+  } catch (ex) {
+    channel.send('Oops!  Game crashed.');
   }
-
-  stream.write(command + ' \n');
 }
 
 function startGame(channel){
