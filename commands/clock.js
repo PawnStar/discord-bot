@@ -1,5 +1,6 @@
 const { DateTime } = require('luxon');
 const mongoose = require('mongoose');
+const chrono = require('chrono-node');
 
 const diffUnits = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
 
@@ -15,43 +16,77 @@ const KirksHouse = new mongoose.Schema({
 
 module.exports = {
   onStart: (client, db)=>{
-    db.kirksHouse = db.model(KirksHouse)
+    db.KirksHouse = db.model('KirksHouse', KirksHouse, 'rpEvents');
   },
   onCommand: async (msg, client, db)=>{
     const args = msg.content.split(' ');
 
     // Make sure we got called for the right command
-    if(msg.content[0] !== '!clock') return;
+    if(args[0] !== '!clock') return;
 
     // Query
-    if(!msg.content[1]){
-
+    if(!args[1]){
+      return oldStuff(msg, client);
     }
 
     // Add
-    if(msg.content[1] === 'add')
-      console.log('add')
+    if(args[1] === 'add'){
+      const time = args.slice(2).join(' ');
+      const parsedTime = chrono.parseDate(time);
+      const luxonObject = DateTime.fromJSDate(parsedTime);
 
-    // Remove
+      const event = new db.KirksHouse({
+        time: luxonObject.valueOf(),
+        addedBy: msg.author.id,
+        addedOn: DateTime.local().valueOf(),
+        deleted: false
+      })
+
+      event.save((err)=>{
+        if(err){
+          msg.reply('Error adding "' + formatDiff(luxonObject) + '"');
+          return console.log(err)
+        }
+
+        msg.reply('Added "' + formatDiff(luxonObject) + '" as ' + event._id);
+      })
+    }
+
+    // Remove (dunno how to do this)
+    if(args[1] === 'remove'){
+      if(!args[2])
+        return msg.reply('You need to specify an event id');
+
+      const event = await db.KirksHouse.findOne({_id: args[2], deleted: false});
+      if(!event)
+        return msg.reply('No event found by that id');
+
+      event.deleted = true;
+      event.deletedBy = msg.author.id;
+      event.deletedOn = DateTime.local().valueOf();
+
+      event.save((err)=>{
+        if(err){
+          msg.reply('Error removing event ' + args[2]);
+          return console.log(err)
+        }
+
+        msg.reply('Removed event ' + args[2]);
+      })
+    }
 
     // List
+    if(args[1] === 'list'){
+
+    }
   }
 }
 
-module.exports = (msg, client)=>{
-  if(msg.content !== '!clock') return;
+const formatDiff = (dateTime)=>{
+  let timeUntil = dateTime.diffNow(diffUnits);
 
-  const thisThursday = DateTime.fromObject({
-    weekNumber: DateTime.local().weekNumber,
-    weekday: 4,
-    hour: 18,
-    minute: 30
-  })
-
-  let timeUntil = thisThursday.diffNow(diffUnits);
-
-  if(timeUntil.as('seconds') < 0)
-    timeUntil = thisThursday.plus({days: 7}).diffNow(diffUnits).normalize();
+  console.log(dateTime);
+  console.log(DateTime.local());
 
   let messageString = ""
 
@@ -75,5 +110,5 @@ module.exports = (msg, client)=>{
   if(timeUntil.seconds > 1)
     messageString += "s";
 
-  msg.reply(messageString + " from now at Kirk's place it is then");
+  return messageString.trim();
 }
