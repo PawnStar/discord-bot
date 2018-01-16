@@ -9,6 +9,7 @@ const KirksHouse = new mongoose.Schema({
   time: {type: Number, required: true},
   addedBy: {type: String, required: true},
   addedOn: {type: String, required: true},
+  addedIn: {type: String, required: true},
   deleted: {type: Boolean, required: true},
   deletedOn: {type: Number},
   deletedBy: {type: String}
@@ -26,7 +27,18 @@ module.exports = {
 
     // Query
     if(!args[1]){
-      return oldStuff(msg, client);
+      const now = DateTime.local().valueOf();
+
+      const event = await db.KirksHouse.findOne({
+        time: { $gt: now },
+        addedIn: msg.channel.id,
+        deleted: false
+      }).sort('time').exec();
+
+      if(!event)
+        return msg.reply('Could not find any events');
+
+      msg.reply(formatDiff(DateTime.fromMillis(event.time)) + ' from now at Kirk\'s place it is then!');
     }
 
     // Add
@@ -39,6 +51,7 @@ module.exports = {
         time: luxonObject.valueOf(),
         addedBy: msg.author.id,
         addedOn: DateTime.local().valueOf(),
+        addedIn: msg.channel.id,
         deleted: false
       })
 
@@ -52,12 +65,17 @@ module.exports = {
       })
     }
 
-    // Remove (dunno how to do this)
+    // Remove
     if(args[1] === 'remove'){
       if(!args[2])
         return msg.reply('You need to specify an event id');
 
-      const event = await db.KirksHouse.findOne({_id: args[2], deleted: false});
+      const event = await db.KirksHouse.findOne({
+        _id: args[2],
+        addedIn: msg.channel.id,
+        deleted: false
+      });
+
       if(!event)
         return msg.reply('No event found by that id');
 
@@ -77,7 +95,22 @@ module.exports = {
 
     // List
     if(args[1] === 'list'){
+      const now = DateTime.local().valueOf();
 
+      const events = await db.KirksHouse.find({
+        time: { $gt: now },
+        addedIn: msg.channel.id,
+        deleted: false
+      });
+
+      if(!events || !events.length)
+        return msg.reply('Found no events');
+
+      const pre = events.map(
+        event=>event._id + '    ' + DateTime.fromMillis(event.time).toLocaleString(DateTime.DATETIME_SHORT)
+      ).join('\n');
+
+      msg.reply('```' + pre + '```');
     }
   }
 }
