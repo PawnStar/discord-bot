@@ -3,8 +3,10 @@ const client = new Discord.Client();
 const config = require('./config.json');
 const commandListener = require('./loadCommands');
 
+const db = require('./db');
+
 //Attach command listeners
-commandListener(client);
+commandListener(client, db);
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);

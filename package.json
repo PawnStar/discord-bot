@@ -5,6 +5,7 @@
     "glkote-term": "^0.3.1",
     "ifvms": "^1.1.2",
     "luxon": "^0.2.4",
+    "mongoose": "^4.13.9",
     "roll": "^1.2.0"
   },
   "devDependencies": {

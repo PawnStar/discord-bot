@@ -1,7 +1,42 @@
 const { DateTime } = require('luxon');
+const mongoose = require('mongoose');
 
-const config = require('../config.json');
 const diffUnits = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
+
+// Data schema
+const KirksHouse = new mongoose.Schema({
+  time: {type: Number, required: true},
+  addedBy: {type: String, required: true},
+  addedOn: {type: String, required: true},
+  deleted: {type: Boolean, required: true},
+  deletedOn: {type: Number},
+  deletedBy: {type: String}
+});
+
+module.exports = {
+  onStart: (client, db)=>{
+    db.kirksHouse = db.model(KirksHouse)
+  },
+  onCommand: async (msg, client, db)=>{
+    const args = msg.content.split(' ');
+
+    // Make sure we got called for the right command
+    if(msg.content[0] !== '!clock') return;
+
+    // Query
+    if(!msg.content[1]){
+
+    }
+
+    // Add
+    if(msg.content[1] === 'add')
+      console.log('add')
+
+    // Remove
+
+    // List
+  }
+}
 
 module.exports = (msg, client)=>{
   if(msg.content !== '!clock') return;

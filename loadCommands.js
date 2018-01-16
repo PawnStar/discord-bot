@@ -19,7 +19,7 @@ fs.readdirSync('./commands').forEach(file=>{
   }
 })
 
-module.exports = (client)=>{
+module.exports = (client, db)=>{
   const commandListener = new EventEmitter();
   const messageListener = new EventEmitter();
 
@@ -34,7 +34,7 @@ module.exports = (client)=>{
       const command = index.command;
 
       if(command.onStart)
-        command.onStart(client);
+        command.onStart(client, db);
       if(command.onCommand)
         commandListener.on(index.name, command.onCommand);
       if(command.onMessage)
@@ -45,9 +45,9 @@ module.exports = (client)=>{
   client.on('message', msg => {
     if(msg.content[0] == '!'){
       const command = msg.content.slice(1).split(' ')[0];
-      if(!commandListener.emit(command, msg, client))
+      if(!commandListener.emit(command, msg, client, db))
         msg.reply('Unrecognized command!')
     }
-    messageListener.emit('message', msg, client);
+    messageListener.emit('message', msg, client, db);
   })
 }
