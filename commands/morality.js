@@ -3,7 +3,7 @@ module.exports = {
   onStart: null,
   onCommand: null,
   onMessage: (msg, client)=>{
-    if(!msg.isMentioned(client.user))
+    if(!msg.isMentioned(client.user) && !msg.content.toLowerCase().includes(client.user.username.toLowerCase()))
       return;
     if(msg.content.trim().substr(-1) === '?'){
       msg.handled = true;
