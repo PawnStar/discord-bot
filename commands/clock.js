@@ -221,16 +221,16 @@ const scheduleEventReminders = (event, channel)=>{
     eventTime.minus({ seconds: 1 })
   ];
 
-  const scheduledReminders = reminders.map(date=>{
+  let scheduledReminders = reminders.map(date=>{
     const diff = formatDiff(date, eventTime);
-    schedule.scheduleJob(date.toJSDate(), ()=>{
+    return schedule.scheduleJob(date.toJSDate(), ()=>{
       channel.send(event.name + " in " + diff);
     })
-  }).filter(event=>event!=null);
+  }).filter(reminder=>reminder!=null);
 
   scheduledReminders.push(schedule.scheduleJob(eventTime.toJSDate(), ()=>{
     channel.send(event.name + " now!");
-  }))
+  }));
 
   scheduledEvents[event._id] = scheduledReminders;
 }
