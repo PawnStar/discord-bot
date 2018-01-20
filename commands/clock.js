@@ -23,11 +23,10 @@ module.exports = {
   },
   onCommand: async (msg, client, db)=>{
     const arguments = yargs.command('!clock [mode] [name] [time..]').parse(msg.content);
+    const now = DateTime.local().valueOf();
 
     // Query
     if(!arguments.mode){
-      const now = DateTime.local().valueOf();
-
       const event = await db.KirksHouse.findOne({
         time: { $gt: now },
         addedIn: msg.channel.id,
@@ -37,7 +36,7 @@ module.exports = {
       if(!event)
         return msg.reply('Could not find any events');
 
-      msg.reply(formatDiff(DateTime.fromMillis(event.time)) + ' from now at Kirk\'s place it is then!');
+      msg.reply(event.name + ' in ' + formatDiff(DateTime.fromMillis(event.time)));
     }
 
     // Add
@@ -49,6 +48,7 @@ module.exports = {
 
       const event = new db.KirksHouse({
         time: luxonObject.valueOf(),
+        name: name,
         addedBy: msg.author.id,
         addedOn: DateTime.local().valueOf(),
         addedIn: msg.channel.id,
@@ -61,23 +61,24 @@ module.exports = {
           return console.log(err)
         }
 
-        msg.reply('Added "' + formatDiff(luxonObject) + '" as ' + event._id);
+        msg.reply('Added event "' + name + '" in ' + formatDiff(luxonObject));
       })
     }
 
     // Remove
     if(arguments.mode === 'remove'){
-      if(arguments.name)
-        return msg.reply('You need to specify an event id');
+      if(!arguments.name)
+        return msg.reply('You need to specify an event name');
 
       const event = await db.KirksHouse.findOne({
-        _id: argumetns.name,
+        name: arguments.name,
+        time: { $gt: now },
         addedIn: msg.channel.id,
         deleted: false
-      });
+      }).sort('time').exec();
 
       if(!event)
-        return msg.reply('No event found by that id');
+        return msg.reply('No event found by that name');
 
       event.deleted = true;
       event.deletedBy = msg.author.id;
@@ -85,11 +86,11 @@ module.exports = {
 
       event.save((err)=>{
         if(err){
-          msg.reply('Error removing event ' + arguments.name);
+          msg.reply('Error removing event "' + arguments.name + '"');
           return console.log(err)
         }
 
-        msg.reply('Removed event ' + arguments.name);
+        msg.reply('Removed event "' + arguments.name + '"');
       })
     }
 
@@ -106,8 +107,14 @@ module.exports = {
       if(!events || !events.length)
         return msg.reply('Found no events');
 
+      const eventNameLength = events.reduce((length, current)=>{
+        if(current.name.length > length)
+          return current.name.length;
+        return length;
+      }, 0);
+
       const pre = events.map(
-        event=>event._id + '    ' + DateTime.fromMillis(event.time).toLocaleString(DateTime.DATETIME_SHORT)
+        event=>event.name.padEnd(eventNameLength + 4) + DateTime.fromMillis(event.time).toLocaleString(DateTime.DATETIME_SHORT)
       ).join('\n');
 
       msg.reply('```' + pre + '```');
@@ -117,10 +124,6 @@ module.exports = {
 
 const formatDiff = (dateTime)=>{
   let timeUntil = dateTime.diffNow(diffUnits);
-
-  console.log(dateTime);
-  console.log(DateTime.local());
-
   let messageString = ""
 
   if(timeUntil.days)
