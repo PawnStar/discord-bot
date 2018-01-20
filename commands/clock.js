@@ -1,12 +1,14 @@
 const { DateTime } = require('luxon');
 const mongoose = require('mongoose');
 const chrono = require('chrono-node');
+const yargs = require('yargs');
 
 const diffUnits = ['days', 'hours', 'minutes', 'seconds', 'milliseconds'];
 
 // Data schema
 const KirksHouse = new mongoose.Schema({
   time: {type: Number, required: true},
+  name: {type: String, required: true},
   addedBy: {type: String, required: true},
   addedOn: {type: String, required: true},
   addedIn: {type: String, required: true},
@@ -20,13 +22,10 @@ module.exports = {
     db.KirksHouse = db.model('KirksHouse', KirksHouse, 'rpEvents');
   },
   onCommand: async (msg, client, db)=>{
-    const args = msg.content.split(' ');
-
-    // Make sure we got called for the right command
-    if(args[0] !== '!clock') return;
+    const arguments = yargs.command('!clock [mode] [name] [time..]').parse(msg.content);
 
     // Query
-    if(!args[1]){
+    if(!arguments.mode){
       const now = DateTime.local().valueOf();
 
       const event = await db.KirksHouse.findOne({
@@ -42,8 +41,9 @@ module.exports = {
     }
 
     // Add
-    if(args[1] === 'add'){
-      const time = args.slice(2).join(' ');
+    if(arguments.mode === 'add'){
+      const name = arguments.name;
+      const time = arguments.time.join(' ');
       const parsedTime = chrono.parseDate(time);
       const luxonObject = DateTime.fromJSDate(parsedTime);
 
@@ -66,12 +66,12 @@ module.exports = {
     }
 
     // Remove
-    if(args[1] === 'remove'){
-      if(!args[2])
+    if(arguments.mode === 'remove'){
+      if(arguments.name)
         return msg.reply('You need to specify an event id');
 
       const event = await db.KirksHouse.findOne({
-        _id: args[2],
+        _id: argumetns.name,
         addedIn: msg.channel.id,
         deleted: false
       });
@@ -85,16 +85,16 @@ module.exports = {
 
       event.save((err)=>{
         if(err){
-          msg.reply('Error removing event ' + args[2]);
+          msg.reply('Error removing event ' + arguments.name);
           return console.log(err)
         }
 
-        msg.reply('Removed event ' + args[2]);
+        msg.reply('Removed event ' + arguments.name);
       })
     }
 
     // List
-    if(args[1] === 'list'){
+    if(arguments.mode === 'list'){
       const now = DateTime.local().valueOf();
 
       const events = await db.KirksHouse.find({

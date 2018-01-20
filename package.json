@@ -7,7 +7,8 @@
     "ifvms": "^1.1.2",
     "luxon": "^0.2.4",
     "mongoose": "^4.13.9",
-    "roll": "^1.2.0"
+    "roll": "^1.2.0",
+    "yargs": "^10.1.1"
   },
   "devDependencies": {
     "discord.js": "^11.2.1"
