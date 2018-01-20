@@ -5,10 +5,10 @@ const commandListener = require('./loadCommands');
 
 const db = require('./db');
 
-//Attach command listeners
-commandListener(client, db);
-
 client.on('ready', () => {
+  //Attach command listeners
+  commandListener(client, db);
+
   console.log(`Logged in as ${client.user.tag}!`);
   console.log('To invite to server visit https://discordapp.com/oauth2/authorize?client_id=' + client.user.id + '&scope=bot&permissions=0');
 });
